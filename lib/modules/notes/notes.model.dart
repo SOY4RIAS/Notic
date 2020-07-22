@@ -21,12 +21,12 @@ class Note {
   }
 }
 
-class NoteList {
+class NotesList {
   String name;
   String id;
   List<Note> _notes;
 
-  NoteList({this.id, List<Note> notes = const []}) {
+  NotesList({this.id, List<Note> notes = const []}) {
     if (this.id == null) {
       this.id = Uuid().v1();
     }
