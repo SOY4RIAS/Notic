@@ -10,23 +10,17 @@ class NotesRepository {
 
   Future<Database> get _db async => await AppDatabase.instance.database;
 
-  getAll() async {
-    return _notesStore.find(await _db).asStream();
+  Future<List<NoteModel>> getAll() async {
+    final notesSnapshot = await _notesStore.find(await _db);
+
+    return notesSnapshot.reversed
+        .map((snapshot) => NoteModel.fromMap(snapshot.value, snapshot.key))
+        .toList();
   }
 
-  getId(id) {
-    return apiClient.getId(id);
-  }
+  Future<String> add(String list, NoteModel note) async {
+    note.list = list;
 
-  delete(id) {
-    return apiClient.delete(id);
-  }
-
-  edit(obj) {
-    return apiClient.edit(obj);
-  }
-
-  add(obj) {
-    return apiClient.add(obj);
+    return _notesStore.add(await _db, note.toMap());
   }
 }

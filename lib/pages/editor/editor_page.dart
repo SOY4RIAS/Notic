@@ -1,6 +1,11 @@
 import 'dart:convert';
+import 'dart:math';
 
+import 'package:client_commerce/modules/notes/notes.controller.dart';
+import 'package:client_commerce/modules/notes/notes.model.dart';
+import 'package:client_commerce/widgets/prompt_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:quill_delta/quill_delta.dart';
 import 'package:zefyr/zefyr.dart';
 
@@ -36,7 +41,7 @@ class _EditorPageState extends State<EditorPage> {
         title: Text('Crear Nota'),
         centerTitle: true,
         actions: <Widget>[
-          IconButton(icon: Icon(Icons.save), onPressed: _saveDocument)
+          IconButton(icon: Icon(Icons.save), onPressed: _confirmSaveDialog)
         ],
       ),
       body: ZefyrScaffold(
@@ -49,9 +54,37 @@ class _EditorPageState extends State<EditorPage> {
     );
   }
 
-  void _saveDocument() {
+  _confirmSaveDialog() {
+    String listName;
+
+    Get.dialog(PromptDialog(
+      onChange: (list) => listName = list,
+      onClose: () => _saveDocument(listName),
+    ));
+  }
+
+  void _saveDocument(String list) {
     final contents = jsonEncode(_controller.document);
 
-    print(contents);
+    final plainContent = _controller.document.toPlainText().split('\n');
+    final endSlice = plainContent.length < 5 ? plainContent.length : 5;
+
+    final summary = plainContent.sublist(1, endSlice);
+
+    final note = NoteModel(
+      title: plainContent[0],
+      content: contents,
+      summary: summary.join('\n'),
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+      lastAction: LastActions.CREATE,
+    );
+
+    Get.find<NotesController>().createNote(
+      list: list,
+      note: note,
+    );
+
+    Get.back();
   }
 }

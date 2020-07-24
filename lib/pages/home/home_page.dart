@@ -1,8 +1,9 @@
-import 'package:client_commerce/pages/editor/editor_page.dart';
 import 'package:flutter/material.dart';
-import 'package:get/route_manager.dart';
+import 'package:get/get.dart';
 
 import 'package:client_commerce/widgets/section_header.dart';
+import 'package:client_commerce/pages/editor/editor_page.dart';
+import 'package:client_commerce/modules/notes/notes.controller.dart';
 import 'package:client_commerce/pages/preferences/preferences_page.dart';
 import 'package:client_commerce/pages/home/containers/groups_container.dart';
 import 'package:client_commerce/pages/home/containers/recent_activity_container.dart';
@@ -11,6 +12,8 @@ class HomePage extends StatelessWidget {
   static String routePath = '/';
 
   Widget buildBody(BuildContext context) {
+    NotesController controller = Get.put(NotesController());
+
     ThemeData theme = Theme.of(context);
 
     TextTheme textTheme = theme.textTheme;

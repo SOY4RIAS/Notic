@@ -1,65 +1,81 @@
+import 'package:client_commerce/modules/notes/notes.controller.dart';
+import 'package:client_commerce/modules/notes/notes.model.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class RecentActivityContainer extends StatelessWidget {
   final _controller = PageController(viewportFraction: 0.6);
 
   @override
   Widget build(BuildContext context) {
+    NotesController notesController = Get.find();
     return Padding(
       padding: const EdgeInsets.only(top: 15),
-      child: PageView.builder(
-        controller: _controller,
-        itemCount: 10,
-        itemBuilder: (context, index) {
-          TextTheme textTheme = Theme.of(context).textTheme;
+      child: StreamBuilder<List<NoteModel>>(
+          stream: notesController.getNotes(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            }
 
-          Color colorBg = index % 2 == 0 ? Colors.white : Colors.grey[800];
+            final data = snapshot.data;
 
-          bool fontShouldBeDark = colorBg.computeLuminance() > 0.5;
+            return PageView.builder(
+              controller: _controller,
+              itemCount: data.length,
+              itemBuilder: (context, index) {
+                TextTheme textTheme = Theme.of(context).textTheme;
 
-          Color fontColor = fontShouldBeDark ? Colors.black : Colors.white;
+                Color colorBg =
+                    index % 2 == 0 ? Colors.white : Colors.grey[800];
 
-          TextStyle itemTitle = textTheme.headline6.copyWith(
-            color: fontColor,
-            fontWeight: FontWeight.bold,
-          );
+                bool fontShouldBeDark = colorBg.computeLuminance() > 0.5;
 
-          TextStyle itemDescription = textTheme.bodyText1.copyWith(
-            color: fontColor,
-            fontWeight: FontWeight.w300,
-          );
+                Color fontColor =
+                    fontShouldBeDark ? Colors.black : Colors.white;
 
-          return Container(
-            width: 50,
-            padding: EdgeInsets.all(5),
-            margin: EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-              color: colorBg,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  'Title Test test hjf dlj aslkdfjals'.toUpperCase(),
-                  maxLines: 1,
-                  overflow: TextOverflow.fade,
-                  style: itemTitle,
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Text(
-                  '',
-                  overflow: TextOverflow.fade,
-                  maxLines: 6,
-                  style: itemDescription,
-                ),
-              ],
-            ),
-          );
-        },
-      ),
+                TextStyle itemTitle = textTheme.headline6.copyWith(
+                  color: fontColor,
+                  fontWeight: FontWeight.bold,
+                );
+
+                TextStyle itemDescription = textTheme.bodyText1.copyWith(
+                  color: fontColor,
+                  fontWeight: FontWeight.w300,
+                );
+
+                return Container(
+                  width: 50,
+                  padding: EdgeInsets.all(5),
+                  margin: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    color: colorBg,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        data[index].title.toUpperCase(),
+                        maxLines: 1,
+                        overflow: TextOverflow.fade,
+                        style: itemTitle,
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        data[index].summary.toUpperCase(),
+                        overflow: TextOverflow.fade,
+                        maxLines: 6,
+                        style: itemDescription,
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          }),
     );
   }
 }

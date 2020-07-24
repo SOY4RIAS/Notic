@@ -1,50 +1,62 @@
 import 'package:meta/meta.dart';
-import 'package:uuid/uuid.dart';
 
-class Note {
+enum LastActions { CREATE, EDIT, OPENED, NONE }
+
+class NoteModel {
   String id;
   String title;
   String content;
-  String summaryContent;
-  String author;
+  String summary;
+  DateTime createdAt;
+  DateTime updatedAt;
+  LastActions lastAction;
+  String list;
 
-  Note({
+  NoteModel({
     @required this.title,
     @required this.content,
-    this.summaryContent,
-    @required this.author,
+    @required this.summary,
+    this.list,
     this.id,
-  }) {
-    if (this.id == null) {
-      this.id = Uuid().v1();
+    @required this.createdAt,
+    @required this.updatedAt,
+    @required this.lastAction,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'title': title,
+      'content': content,
+      'summary': summary,
+      'list': list,
+      'lastAction': lastAction.index,
+      'createdAt': createdAt.millisecondsSinceEpoch,
+      'updatedAt': updatedAt.millisecondsSinceEpoch,
+    };
+  }
+
+  static NoteModel fromMap(Map<String, dynamic> data, String id) {
+    LastActions lastAction;
+
+    if (data['lastAction'] == LastActions.CREATE.index) {
+      lastAction = LastActions.CREATE;
+    } else if (data['lastAction'] == LastActions.EDIT.index) {
+      lastAction = LastActions.EDIT;
+    } else if (data['lastAction'] == LastActions.OPENED.index) {
+      lastAction = LastActions.OPENED;
+    } else {
+      lastAction = LastActions.NONE;
     }
+
+    return NoteModel(
+      title: data['title'],
+      content: data['content'],
+      summary: data['summary'],
+      list: data['list'],
+      createdAt: DateTime.fromMicrosecondsSinceEpoch(data['createdAt']),
+      updatedAt: DateTime.fromMicrosecondsSinceEpoch(data['updatedAt']),
+      lastAction: lastAction,
+      id: id,
+    );
   }
-}
-
-class NotesList {
-  String name;
-  String id;
-  List<Note> _notes;
-
-  NotesList({this.id, List<Note> notes = const []}) {
-    if (this.id == null) {
-      this.id = Uuid().v1();
-    }
-
-    this._notes = notes;
-  }
-
-  append(Note note) {
-    this._notes.add(note);
-  }
-
-  Note findById(String id) {
-    return this._notes.firstWhere((note) => note.id == id);
-  }
-
-  remove(String id) {
-    this._notes.removeWhere((note) => note.id == id);
-  }
-
-  get notes => this._notes;
 }
